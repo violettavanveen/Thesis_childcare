@@ -1,0 +1,56 @@
+---
+title: "Thesis"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+list.of.packages <- c("RCMIP5", "tidyverse", "descr", "plyr", "broom", "data.table", "haven", "dplyr", "naniar", "car",
+                      "mice", "spatstat", "laeken", "VIM", "GGally", "finalfit", "tidyr", "magrittr", "gridExtra", "lsr", "lme4", "matrixStats",
+                      "ivpack", "readxl", "weights", "questionr", "psych", "sandwich", "lmtest", "plotrix", "stargazer", "ggplot2", "ggpubr", "lsmeans", "vtable", "corrplot")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org")
+
+invisible(lapply(list.of.packages, library, character.only = TRUE))
+```
+
+Some descriptive stats for the number of creches
+```{r}
+creches <- read_xlsx("C:/Users/hp/Desktop/Tesi/childcare/creches.xlsx")
+creches <- as.data.frame(creches[4:nrow(creches), ])
+creches <- dplyr::rename(creches, name = ...2, boulangerie = ...3, ecole_maternelle = ...4,
+                  creche = ...5, ecole_elementaire = ...6, college = ...7, lycee = ...8,
+                  enfants_handicap = ...9, code = "Insee - Statistiques locales")
+
+which(is.na(creches))
+
+# creches_numeric <- creches %>%
+#   dplyr::select(-c("name", "code")) %>% # this removes the alpha column if all your character columns need converted to numeric
+#   mutate_if(is.character,as.numeric)
+
+creches$creche <- as.numeric(creches$creche)
+
+plot(density(creches$creche))
+
+# excluding Paris, Marseille, Lyon, Toulouse
+
+excluding_4_biggest <- subset(creches, !(name %in% c('Paris',
+                    'Marseille', 'Lyon', 'Toulouse')))
+plot(density(excluding_4_biggest$creche))
+
+# focus on less
+under_10_creches <- subset(creches, creche < 10)
+
+hist(under_10_creches$creche)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
